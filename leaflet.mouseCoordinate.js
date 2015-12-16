@@ -344,7 +344,7 @@ L.Control.mouseCoordinate  = L.Control.extend({
         }
         var ew = "0" + m_ce;
 
-        var m_cn = this._mgr2utm_find_m_cn(zone,band);
+        var m_cn = this._mgr2utm_find_m_cn(zone,mgr.band);
         
         var nw;
         if (m_cn.length === 1){
@@ -356,7 +356,11 @@ L.Control.mouseCoordinate  = L.Control.extend({
 
         return {zone: zone, x: ew, y: nw};
     },
-    _mgr2utm_find_m_cn: function (zone, band){
+    _mgr2utm_find_m_cn: function (zone, mgrBand){
+        var m_north_0 = "FGHJKLMNPQRSTUVABCDE";
+        var m_north_1 = "ABCDEFGHJKLMNPQRSTUV";
+        var r_north = mgrBand.substr(1,1);
+
         var i = parseInt(zone.substr(0,2)) % 2;
         var m_cn;
         if (i === 0){
