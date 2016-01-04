@@ -1,4 +1,4 @@
-/* 
+/*
     Author     : Johannes Rudolph
 */
 /* globals L: true */
@@ -8,24 +8,24 @@ L.Control.mouseCoordinate  = L.Control.extend({
         utm: false,
         utmref: false,
         position: 'bottomright',
-        
+
         _sm_a: 6378137.0,
         _sm_b: 6356752.314,
         _sm_EccSquared: 6.69437999013e-03,
         _UTMScaleFactor: 0.9996
-        
+
     },
     onAdd: function(map){
         this._map = map;
-        
+
         var className = 'leaflet-control-mouseCoordinate';
         var container = this._container = L.DomUtil.create('div',className);
-        
+
         this._gpsPositionContainer = L.DomUtil.create("div","gpsPos",container);
-        
+
         map.on("mousemove", this._update, this);
         //map.whenReady(this._update, this);
-        
+
         return container;
     },
     _update: function(e){
@@ -39,23 +39,23 @@ L.Control.mouseCoordinate  = L.Control.extend({
             content += "<tr><td></td><td style='width: 75px'>"+ gpsMinuten.NS + " " + gpsMinuten.latgrad + "&deg; "+ gpsMinuten.latminuten+"</td><td style='width: 75px'> " + gpsMinuten.WE + " "+ gpsMinuten.lnggrad +"&deg; "+ gpsMinuten.latminuten +"</td></tr>";
             var gpsMinutenSekunden = this._geo2gradminutensekunden(gps);
             content += "<tr><td></td><td>"+ gpsMinutenSekunden.NS + " " + gpsMinutenSekunden.latgrad + "&deg; "+ gpsMinutenSekunden.latminuten + "&prime; "+ gpsMinutenSekunden.latsekunden+"&Prime;</td><td> " + gpsMinutenSekunden.WE + " "+ gpsMinutenSekunden.lnggrad +"&deg; "+ gpsMinutenSekunden.latminuten + "&prime; "+ gpsMinutenSekunden.lngsekunden+"&Prime;</td></tr>";
-            
+
         }
         if(this.options.utm){
             var utm = this._geo2utm(gps);
-            content += "<tr><td>UTM</td><td colspan='2'>"+utm.zone+"&nbsp;" +utm.x+"&nbsp;" +utm.y+"</td></tr>"; 
+            content += "<tr><td>UTM</td><td colspan='2'>"+utm.zone+"&nbsp;" +utm.x+"&nbsp;" +utm.y+"</td></tr>";
         }
         if(this.options.utmref){
             var utmref = this._utm2mgr(this._geo2utm(gps));
-            content += "<tr><td>UTM REF</td><td colspan='2'>"+utmref.zone+"&nbsp;" +utmref.band+"&nbsp;" +utmref.x+"&nbsp;" +utmref.y+"</td></tr>"; 
+            content += "<tr><td>UTM REF</td><td colspan='2'>"+utmref.zone+"&nbsp;" +utmref.band+"&nbsp;" +utmref.x+"&nbsp;" +utmref.y+"</td></tr>";
         }
-            
+
         content += "</table>";
         this._gpsPositionContainer.innerHTML = content;
-    },    
+    },
     _utm2geo: function utm2geo(utm){
         // Copyright (c) 2006, HELMUT H. HEIMEIER
-        
+
         var zone = utm.zone;
         var ew = utm.x;
         var nw = utm.y;
@@ -151,13 +151,13 @@ L.Control.mouseCoordinate  = L.Control.extend({
         return {lat: bw, lng: lw};
     },
     _geo2utm: function (gps){
-        //Copyright (c) 2006, HELMUT H. HEIMEIER 
+        //Copyright (c) 2006, HELMUT H. HEIMEIER
 
         var lw = gps.lng;
         var bw = gps.lat;
         // Geographische Laenge lw und Breite bw im WGS84 Datum
         if (lw <= -180 || lw > 180 || bw <= -80 || bw >= 84){
-            alert("Werte nicht im Bereich des UTM Systems\n -180 <= LW < +180, -80 < BW < 84 N"); // jshint ignore:line
+            // CBA removed alert and simply return
             return;
         }
         lw = parseFloat(lw);
@@ -188,7 +188,7 @@ L.Control.mouseCoordinate  = L.Control.extend({
         // Laengenzone lz und Breitenzone (Band) bz
         var lzn = parseInt((lw+180)/6) + 1;
         var lz = lzn;
-        if (lzn < 10){ 
+        if (lzn < 10){
             lz = "0" + lzn;
         }
         var bd = parseInt(1 + (bw + 80)/8);
@@ -240,32 +240,32 @@ L.Control.mouseCoordinate  = L.Control.extend({
         if (nk < 0.5) {
             nw = "" + parseInt(nw);
         }
-        else{ 
+        else{
             nw = "" + (parseInt(nw) + 1);
         }
-        
+
         while (nw.length < 7) {
             nw = "0" + nw;
         }
-        
+
         nk = ew - parseInt(ew);
         if (nk < 0.5) {
             ew = "0" + parseInt(ew);
         }
-        else { 
+        else {
             ew = "0" + parseInt(ew+1);
         }
-        
+
         return {zone: zone, x: ew, y: nw};
      },
 
     _utm2mgr: function (utm){
-        // Copyright (c) 2006, HELMUT H. HEIMEIER 
-        
+        // Copyright (c) 2006, HELMUT H. HEIMEIER
+
         var zone = utm.zone;
         var ew = utm.x;
         var nw = utm.y;
-     
+
         // Laengenzone zone, Ostwert ew und Nordwert nw im WGS84 Datum
         var z1 = zone.substr(0,2);
         var z2 = zone.substr(2,1);
@@ -278,9 +278,11 @@ L.Control.mouseCoordinate  = L.Control.extend({
         var m_north = 'ABCDEFGHJKLMNPQRSTUV';
 
         if (z1 < "01" || z1 > "60" || z2 < "C" ||z2 > "X"){
-            alert(z1 + z2 + " ist keine gueltige UTM Zonenangabe"); // jshint ignore:line
+            // CBA - removed alert boxes. Prefer code to return is there are problems and Update to handle
+            return;
+            //alert(z1 + z2 + " ist keine gueltige UTM Zonenangabe"); // jshint ignore:line
         }
-        
+
         var m_ce;
         var i = z1 % 3;
         if (i === 1) {
@@ -306,19 +308,19 @@ L.Control.mouseCoordinate  = L.Control.extend({
         while (i-20 >= 0){
             i = i-20;
         }
-        
+
         m_cn = m_cn + i;
-        if (m_cn > 19){ 
+        if (m_cn > 19){
             m_cn = m_cn - 20;
         }
 
         var band = m_east.charAt(m_ce) + m_north.charAt(m_cn);
-        
+
         return {zone: zone,band: band, x: ew2, y: nw2};
     },
     _mgr2utm: function (mgr){
-        // Copyright (c) 2006, HELMUT H. HEIMEIER 
-        
+        // Copyright (c) 2006, HELMUT H. HEIMEIER
+
         // Laengenzone zone, Ostwert ew und Nordwert nw im WGS84 Datum
         var m_east_0 = "STUVWXYZ";
         var m_east_1 = "ABCDEFGH";
@@ -345,7 +347,7 @@ L.Control.mouseCoordinate  = L.Control.extend({
         var ew = "0" + m_ce;
 
         var m_cn = this._mgr2utm_find_m_cn(zone,mgr.band);
-        
+
         var nw;
         if (m_cn.length === 1){
            nw = "0" + m_cn;
@@ -435,7 +437,7 @@ L.Control.mouseCoordinate  = L.Control.extend({
         var lngminuten = (gps.lng - lnggrad) * 60;
         var lngsekunden = Math.round(((lngminuten - parseInt(lngminuten)) * 60) * 100) /100;
         lngminuten = parseInt(lngminuten);
-        
+
         return this._AddNSEW({latgrad: latgrad, latminuten: latminuten,latsekunden: latsekunden, lnggrad: lnggrad, lngminuten: lngminuten, lngsekunden: lngsekunden});
     },
     _AddNSEW: function (coord){
